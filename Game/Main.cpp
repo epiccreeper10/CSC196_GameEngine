@@ -1,46 +1,76 @@
-#include "Core/Memory.h"
+#include "Engine.h"
+#include "Player.h"
+#include "Enemy.h"
+#include "SpaceShooter.h"
+
 #include <iostream>
-#include "Math/MathUtils.h"
-#include "Renderer/Renderer.h"
-#include "Math/Random.h"
 #include <vector>
+#include <cinttypes>
+#include <time.h>
+#include <algorithm>
 
 
 using namespace std;
 	
-template <typename T>
-class smart_ptr
-{
-public:
-	smart_ptr(T* ptr) : ptr{ ptr } {}
-	~smart_ptr() { delete ptr; }
-private:
-	T* ptr;
-};
 	int main()
 	{
-		neu::SeedRandom(23443);
-		for (int i = 0; i < 10; i++) {
-			cout << neu::randomf(5,10) << endl;
-		}
-
-
-
 		neu::InitializeMemory();
-		neu::Renderer renderer;
-		renderer.Initialize();
-		renderer.CreateWindow("Neumont", 800, 600);
+		
+		// Initialize Engine
+		neu::g_renderer.Initialize();
 
-		while (1) 
+		neu::g_renderer.Initialize();
+
+		neu::g_audio.Initialize();
+
+		neu::g_input.Initialize();
+
+		// Create Window
+		neu::g_renderer.CreateWindow("Neumont", 800, 600);
+		neu::g_renderer.setClearColor(neu::Color{ 51, 51, 51, 255 });
+		cout << neu::GetFilePath() << endl;
+		neu::SetFilePath("../Assets");
+
+		//Create Game
+		SpaceShooter game;
+		neu::g_audio.AddAudio("laser", "Bullet.wav");
+		neu::g_audio.AddAudio("explosion", "Explosion.wav");
+		neu::g_audio.AddAudio("Star_Trek", "BattleMusic.mp3");
+		game.Initialize();
+
+
+
+
+		
+		//Update Loop
+		bool quit = false;
+		while (!quit) 
 		{
-
-			//renderer.BeginFrame();
+			neu::g_time.Tick();
+			neu::g_input.Update();
+			
+			if (neu::g_input.GetKeyDown(neu::key_escape)) {
+				quit = true;
+			}
+			game.Update();
+			
+			neu::g_renderer.BeginFrame();
 			// draw
-			renderer.DrawLine(neu::randomf(800), neu::randomf(600), neu::randomf(800), neu::randomf(600));
-			renderer.DrawPoint(neu::randomf(800), neu::randomf(600));
-			renderer.EndFrame();
-		}
+			game.Draw(neu::g_renderer);
+			neu::g_audio.Update();
 
-		getchar();
+
+			neu::g_renderer.EndFrame();
+
+
+		}
+		neu::g_audio.Shutdown();
+		neu::g_renderer.Shutdown();
+
 	}
-	
+	/*
+		neu::Vector2 target = IS.getMousePosition();
+		angle = target.GetAngle();
+		neu::Vector2 direction{ 1, 0 };
+		direction = neu::Vector2::Rotate(direction, angle - math::Halfpi);
+		*/

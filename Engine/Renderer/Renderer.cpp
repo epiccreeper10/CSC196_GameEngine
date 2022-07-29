@@ -1,5 +1,6 @@
 #include "Renderer.h" 
 #include <SDL.h>
+#include "../../ThirdParty/SDL2_ttf-2.20.0/include/SDL_ttf.h"
 namespace neu
 {
 
@@ -7,16 +8,21 @@ namespace neu
 	void Renderer::Initialize()
 	{
 		SDL_Init(SDL_INIT_VIDEO);
+		TTF_Init();
 	}
 
 	void Renderer::Shutdown()
 	{
 		SDL_DestroyRenderer(m_renderer);
 		SDL_DestroyWindow(m_window);
+		TTF_Quit();
 	}
 
 	void Renderer::CreateWindow(const char* name, int width, int height)
 	{
+		m_width = width;
+		m_height = height;
+
 		m_window = SDL_CreateWindow(name, 100, 100, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 		m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
 	}
@@ -44,7 +50,7 @@ namespace neu
 		SDL_RenderDrawPointF(m_renderer, x, y);
 	}
 
-	void Renderer::Drawline(const Vector2& v1, const Vector2& v2, const Color& color)
+	void Renderer::DrawLine(const Vector2& v1, const Vector2& v2, const Color& color)
 	{
 		SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
 		SDL_RenderDrawLineF(m_renderer, v1.x, v1.y, v2.x, v2.y);
